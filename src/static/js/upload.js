@@ -183,10 +183,11 @@ btnEnviar.addEventListener("click", async () => {
     }
 
     const data = await res.json();
-    console.log("UPLOAD RESPONSE:", data);
 
-
-    alert("✅ Prova enviada e adaptada!");
+    // A prova fica no navegador: em deploy serverless o servidor nao mantem
+    // estado entre requisicoes, entao o cliente e a fonte confiavel.
+    localStorage.setItem("prova_adaptada", data.adapted);
+    localStorage.setItem("prova_agente", agente);
 
     window.location.href = `/chat?agente=${agente}`;
 });

@@ -23,6 +23,10 @@ LLM_TIMEOUT = float(os.getenv("LLM_TIMEOUT", "120"))
 # Sem isto, o bloco <think> do modelo vaza para dentro da prova adaptada.
 LLM_REASONING_EFFORT = os.getenv("LLM_REASONING_EFFORT", "none")
 
+# Segunda passagem que confere se nenhuma questao sumiu. Dobra o tempo de
+# resposta; desligue com VALIDAR_ADAPTACAO=false se o deploy estourar o timeout.
+VALIDAR_ADAPTACAO = os.getenv("VALIDAR_ADAPTACAO", "true").lower() not in ("false", "0", "no")
+
 # --- Upload ---
 MAX_UPLOAD_BYTES = int(os.getenv("MAX_UPLOAD_MB", "10")) * 1024 * 1024
 EXTENSOES_ACEITAS = (".pdf", ".docx", ".txt")

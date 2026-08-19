@@ -145,29 +145,38 @@ async def upload_prova(
         "adapted": resultado["adapted"],
         "agent_used": resultado["agent_used"],
         "metadata": resultado["metadata"],
-        "pdf_url": f"/api/adapt/pdf?session_id={session_id}",
     }
 
 
 @app.post("/api/chat")
-async def chat_api(session_id: str = Form(...), mensagem: str = Form(...)):
-    """Conversa sobre a prova já adaptada."""
+async def chat_api(
+    session_id: str = Form(...),
+    mensagem: str = Form(...),
+    prova: str = Form(""),
+    agente: str = Form(""),
+):
+    """Conversa sobre a prova já adaptada.
+
+    A prova pode vir do cliente (`prova`) ou da sessão em memória. Em deploy
+    serverless a memória não é compartilhada entre instâncias, então o cliente
+    é a fonte confiável; a sessão fica como conveniência no uso local.
+    """
     sessao = get_session(session_id)
-    conteudo = sessao.get("adapted_content") or sessao.get("content")
+    conteudo = prova.strip() or sessao.get("adapted_content") or sessao.get("content")
 
     if not conteudo:
         return {"resposta": "Envie uma prova primeiro para que eu possa adaptá-la."}
 
     texto = mensagem.lower()
     if any(palavra in texto for palavra in ("pdf", "baixar", "download")):
-        if not sessao.get("adapted_content"):
-            return {"resposta": "Ainda não há uma prova adaptada nesta sessão."}
         return {
             "resposta": "Sua prova adaptada está pronta para download.",
-            "pdf_url": f"/api/adapt/pdf?session_id={session_id}",
+            "pdf_pronto": True,
         }
 
-    agente = sessao.get("agente") or "tea"
+    agente = agente or sessao.get("agente") or "tea"
+    if agente not in AGENTES:
+        agente = "tea"
     instancia = orchestrator.get_agent(agente)
     prompt = (
         "Responda à pergunta do professor sobre a prova adaptada abaixo. "
@@ -183,10 +192,25 @@ async def chat_api(session_id: str = Form(...), mensagem: str = Form(...)):
     return {"resposta": resposta}
 
 
+@app.post("/api/adapt/pdf")
+async def gerar_pdf(session_id: str = Form(...), prova: str = Form("")):
+    """Gera o PDF a partir do texto enviado pelo cliente.
+
+    É POST porque o texto da prova vai no corpo: não depende de a sessão
+    existir nesta instância, o que seria frágil em serverless.
+    """
+    adaptada = prova.strip() or get_session(session_id).get("adapted_content")
+    if not adaptada:
+        raise HTTPException(status_code=404, detail="Nenhuma prova adaptada foi enviada.")
+
+    caminho = gerar_pdf_prova(adaptada, session_id)
+    return FileResponse(caminho, media_type="application/pdf", filename="prova_adaptada.pdf")
+
+
 @app.get("/api/adapt/pdf")
 async def baixar_pdf(session_id: str):
-    sessao = get_session(session_id)
-    adaptada = sessao.get("adapted_content")
+    """Atalho para uso local, quando a sessão está no mesmo processo."""
+    adaptada = get_session(session_id).get("adapted_content")
     if not adaptada:
         raise HTTPException(status_code=404, detail="Prova adaptada não encontrada nesta sessão.")
 

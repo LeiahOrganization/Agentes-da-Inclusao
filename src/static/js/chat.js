@@ -46,6 +46,52 @@ const btnEnviar = document.querySelector(".btnEnviarMsg")
 
 const chatArea = document.querySelector(".areaConversa")
 
+// A prova adaptada fica no navegador e viaja junto de cada requisicao.
+const provaAdaptada = () => localStorage.getItem("prova_adaptada") || "";
+
+// O backend pede texto puro ao modelo, entao renderizamos como texto puro.
+// Usar innerHTML aqui abriria espaco para injecao de HTML na resposta.
+function bolhaDoAgente(texto) {
+    const bolha = document.createElement("div");
+    bolha.classList.add("chatMsgConversa");
+    const corpo = document.createElement("div");
+    corpo.classList.add("markdown");
+    corpo.style.whiteSpace = "pre-wrap";
+    corpo.textContent = texto;
+    bolha.appendChild(corpo);
+    return bolha;
+}
+
+function botaoPdf() {
+    const btn = document.createElement("button");
+    btn.textContent = "Baixar PDF";
+    btn.classList.add("btnPdf");
+    btn.addEventListener("click", async () => {
+        const dados = new FormData();
+        dados.append("session_id", sessionId);
+        dados.append("prova", provaAdaptada());
+
+        btn.disabled = true;
+        btn.textContent = "Gerando...";
+        try {
+            const res = await fetch("/api/adapt/pdf", { method: "POST", body: dados });
+            if (!res.ok) throw new Error("falha ao gerar o PDF");
+            const url = URL.createObjectURL(await res.blob());
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "prova_adaptada.pdf";
+            link.click();
+            URL.revokeObjectURL(url);
+        } catch (erro) {
+            alert("Nao foi possivel gerar o PDF: " + erro.message);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Baixar PDF";
+        }
+    });
+    return btn;
+}
+
 window.addEventListener("DOMContentLoaded", async () => {
     const agente = document.body.dataset.agente;
 
@@ -61,16 +107,15 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
 
     const data = await res.json();
+    chatArea.appendChild(bolhaDoAgente(data.resposta || "Nao foi possivel iniciar a conversa."));
 
-    const msg = document.createElement("div");
-    msg.classList.add("chatMsgConversa");
-    msg.innerHTML = `
-        <div class="markdown">
-            ${marked.parse(data.resposta)}
-        </div>
-    `
-
-    chatArea.appendChild(msg);
+    const prova = provaAdaptada();
+    if (prova) {
+        const bolha = bolhaDoAgente("Esta e a prova adaptada:\n\n" + prova);
+        bolha.appendChild(botaoPdf());
+        chatArea.appendChild(bolha);
+        chatArea.scrollTop = chatArea.scrollHeight;
+    }
 });
 
 
@@ -80,7 +125,9 @@ btnEnviar.addEventListener("click", async () => {
 
     const usuarioMsgConversa = document.createElement("div")
     usuarioMsgConversa.classList.add("usuarioMsgConversa")
-    usuarioMsgConversa.innerHTML = `<p>${mensagem}</p>`
+    const paragrafo = document.createElement("p")
+    paragrafo.textContent = mensagem
+    usuarioMsgConversa.appendChild(paragrafo)
 
 
     chatArea.appendChild(usuarioMsgConversa)
@@ -90,47 +137,36 @@ btnEnviar.addEventListener("click", async () => {
 
     const formData = new FormData()
     formData.append("mensagem", mensagem)
-    formData.append("session_id", sessionId);
+    formData.append("session_id", sessionId)
+    formData.append("prova", provaAdaptada())
+    formData.append("agente", document.body.dataset.agente || "")
 
-    const res = await fetch("/api/chat", {
-        method: "POST",
-        body: formData
-    })
+    btnEnviar.disabled = true
+    let data
+    try {
+        const res = await fetch("/api/chat", { method: "POST", body: formData })
+        data = await res.json()
+        if (!res.ok) throw new Error(data.detail || "erro " + res.status)
+    } catch (erro) {
+        chatArea.appendChild(bolhaDoAgente("Erro ao falar com o agente: " + erro.message))
+        chatArea.scrollTop = chatArea.scrollHeight
+        btnEnviar.disabled = false
+        return
+    }
+    btnEnviar.disabled = false
 
-    const data = await res.json()
-    console.log(data)
+    const bolha = bolhaDoAgente(data.resposta)
 
-    const chatMsgConversa = document.createElement("div")
-    chatMsgConversa.classList.add("chatMsgConversa")
-
-    chatMsgConversa.innerHTML = `
-        <div class="markdown">
-            ${marked.parse(data.resposta)}
-        </div>
-    `
-
-    // 🔹 Se a resposta indicar que a prova foi adaptada, mostra botão PDF
-    // 🔹 Se o backend enviar o link do PDF
-    if (data.pdf_url) {
-        const btnPdf = document.createElement("button")
-        btnPdf.textContent = "📄 Visualizar PDF"
-        btnPdf.classList.add("btnPdf")
-
-        btnPdf.addEventListener("click", () => {
-            window.open(data.pdf_url, "_blank")
-        })
-
-        chatMsgConversa.appendChild(btnPdf)
+    // Se o agente devolveu a prova reajustada, ela vira a versao corrente.
+    if (data.resposta && data.resposta.length > 200 && provaAdaptada()) {
+        localStorage.setItem("prova_adaptada", data.resposta)
+    }
+    if (data.pdf_pronto || provaAdaptada()) {
+        bolha.appendChild(botaoPdf())
     }
 
-
-
-
-
-    chatArea.appendChild(chatMsgConversa)
-
+    chatArea.appendChild(bolha)
     chatArea.scrollTop = chatArea.scrollHeight
-
 })
 
 function atualizarDimensoes() {

@@ -3,7 +3,7 @@
 import asyncio
 
 from agents import AGENTES
-from config import LLM_MAX_TOKENS, LLM_MODEL, get_client
+from config import VALIDAR_ADAPTACAO
 
 NIVEIS = {
     "easy": "Simplifique ao máximo e use vocabulário básico.",
@@ -33,7 +33,7 @@ class ProvaOrchestrator:
         content: str,
         adaptation_type: str,
         difficulty_level: str = "medium",
-        validar: bool = True,
+        validar: bool | None = None,
     ) -> dict:
         agent = self.get_agent(adaptation_type)
 
@@ -42,7 +42,7 @@ class ProvaOrchestrator:
 
         adaptado = await agent.adapt(conteudo_com_nivel)
 
-        if validar:
+        if VALIDAR_ADAPTACAO if validar is None else validar:
             adaptado = await self._validar(original=content, adaptado=adaptado, agent=agent)
 
         return {

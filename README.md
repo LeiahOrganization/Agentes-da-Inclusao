@@ -46,13 +46,39 @@ convenção do projeto Olhar Acessível. Para trocar de provedor, basta mudar o
 > `.gitignore` e deve continuar assim. No deploy, cadastre a chave como
 > variável de ambiente.
 
+## Deploy na Vercel
+
+O projeto já vem configurado (`vercel.json` + `api/index.py`).
+
+1. Acesse <https://vercel.com/new> e importe `projetosleiah/Agentes-da-Inclusao`.
+2. Em **Environment Variables**, cadastre no mínimo:
+
+   | Nome | Valor |
+   |------|-------|
+   | `LLM_API_KEY` | sua chave da Groq |
+   | `LLM_BASE_URL` | `https://api.groq.com/openai/v1` |
+   | `LLM_MODEL` | `qwen/qwen3.6-27b` |
+   | `LLM_REASONING_EFFORT` | `none` |
+   | `CORS_ORIGINS` | o domínio gerado pela Vercel |
+
+3. Clique em **Deploy**. Cada `git push` na `main` republica automaticamente.
+
+Observações:
+
+- O plano gratuito limita a função a **60 segundos**. Adaptar uma prova longa faz
+  duas chamadas ao modelo. Se der timeout, defina `VALIDAR_ADAPTACAO=false` para
+  usar apenas uma chamada.
+- **GitHub Pages não serve para este projeto**: hospeda apenas arquivos estáticos
+  e não executa Python, então o backend e os agentes não funcionariam lá.
+
 ## Estrutura
 
 ```
+├── api/index.py        # ponto de entrada da Vercel (importa main.app)
 ├── main.py             # rotas FastAPI
 ├── config.py           # cliente do modelo e variáveis de ambiente
 ├── orchestrator.py     # escolhe o agente, adapta e valida o resultado
-├── session_store.py    # sessões em memória (ver docs/PENDENCIAS.md)
+├── session_store.py    # cache de sessão (a API funciona sem ele)
 ├── agents/             # um arquivo por perfil de adaptação
 ├── utils/              # extração de texto e geração de PDF
 ├── src/                # templates Jinja2 e assets estáticos
