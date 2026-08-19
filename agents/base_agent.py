@@ -1,8 +1,31 @@
 """Classe base dos agentes de adaptação."""
 
 import asyncio
+import re
 
-from config import LLM_MAX_TOKENS, LLM_MODEL, LLM_TEMPERATURE, get_client
+from config import (
+    LLM_MAX_TOKENS,
+    LLM_MODEL,
+    LLM_REASONING_EFFORT,
+    LLM_TEMPERATURE,
+    get_client,
+)
+
+#: Modelos de raciocinio (qwen, gpt-oss) podem emitir o rascunho em <think>.
+#: Isso nunca deve chegar a prova do aluno.
+_BLOCO_RACIOCINIO = re.compile(r"<think>.*?</think>", re.DOTALL | re.IGNORECASE)
+
+
+def limpar_raciocinio(texto: str) -> str:
+    """Remove blocos <think> do texto devolvido pelo modelo."""
+    limpo = _BLOCO_RACIOCINIO.sub("", texto)
+    # Bloco aberto e nunca fechado: a resposta foi truncada no meio do
+    # raciocinio. Tudo a partir dali e rascunho e vai fora — devolver isso
+    # como "prova adaptada" seria pior do que falhar.
+    abertura = limpo.lower().find("<think>")
+    if abertura != -1:
+        limpo = limpo[:abertura]
+    return limpo.strip()
 
 
 class AdaptationAgent:
@@ -45,23 +68,37 @@ Restrições de formato (obrigatórias):
 
     def generate(self, prompt: str) -> str:
         """Chamada síncrona ao modelo. Levanta RuntimeError em caso de falha."""
+        parametros = {
+            "model": self.model,
+            "temperature": LLM_TEMPERATURE,
+            "max_tokens": LLM_MAX_TOKENS,
+            "messages": [
+                {"role": "system", "content": self._system_prompt()},
+                {"role": "user", "content": prompt},
+            ],
+        }
+        if LLM_REASONING_EFFORT:
+            parametros["reasoning_effort"] = LLM_REASONING_EFFORT
+
         try:
-            resposta = self.client.chat.completions.create(
-                model=self.model,
-                temperature=LLM_TEMPERATURE,
-                max_tokens=LLM_MAX_TOKENS,
-                messages=[
-                    {"role": "system", "content": self._system_prompt()},
-                    {"role": "user", "content": prompt},
-                ],
-            )
+            resposta = self.client.chat.completions.create(**parametros)
+        except TypeError:
+            # Provedor que nao aceita reasoning_effort: repete sem o parametro.
+            parametros.pop("reasoning_effort", None)
+            resposta = self.client.chat.completions.create(**parametros)
         except Exception as erro:  # rede, cota, chave inválida, modelo inexistente
             raise RuntimeError(f"Falha ao consultar o modelo ({self.name}): {erro}") from erro
 
         conteudo = resposta.choices[0].message.content if resposta.choices else None
         if not conteudo:
             raise RuntimeError(f"O modelo não retornou conteúdo ({self.name}).")
-        return conteudo.strip()
+
+        conteudo = limpar_raciocinio(conteudo)
+        if not conteudo:
+            raise RuntimeError(
+                f"O modelo devolveu apenas raciocínio, sem a prova adaptada ({self.name})."
+            )
+        return conteudo
 
     async def adapt(self, content: str) -> str:
         """Adapta o conteúdo sem bloquear o event loop do FastAPI."""

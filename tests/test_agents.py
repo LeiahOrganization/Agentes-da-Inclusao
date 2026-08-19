@@ -35,3 +35,36 @@ def test_orquestrador_rejeita_agente_invalido():
 
     with pytest.raises(ValueError, match="inválido"):
         ProvaOrchestrator().get_agent("inexistente")
+
+
+# --------------------------------------------------------------------------
+# Regressão: modelos de raciocínio (qwen, gpt-oss) emitem <think>.
+# Esse rascunho não pode chegar à prova entregue ao aluno.
+# --------------------------------------------------------------------------
+
+
+def test_remove_bloco_de_raciocinio():
+    from agents.base_agent import limpar_raciocinio
+
+    bruto = "<think>Vou simplificar o vocabulário.</think>\nQuestão 1) Quanto é 2 + 2?"
+    assert limpar_raciocinio(bruto) == "Questão 1) Quanto é 2 + 2?"
+
+
+def test_bloco_de_raciocinio_nao_fechado_descarta_tudo():
+    """Raciocínio truncado não vira prova: melhor falhar do que entregar rascunho."""
+    from agents.base_agent import limpar_raciocinio
+
+    assert limpar_raciocinio("<think>Pensando sem terminar...") == ""
+
+
+def test_conteudo_antes_do_raciocinio_e_preservado():
+    from agents.base_agent import limpar_raciocinio
+
+    bruto = "Questão 1) Quanto é 2 + 2?\n<think>rascunho truncado"
+    assert limpar_raciocinio(bruto) == "Questão 1) Quanto é 2 + 2?"
+
+
+def test_texto_sem_raciocinio_fica_intacto():
+    from agents.base_agent import limpar_raciocinio
+
+    assert limpar_raciocinio("Questão 1) Quanto é 2 + 2?") == "Questão 1) Quanto é 2 + 2?"

@@ -19,6 +19,9 @@ LLM_MODEL = os.getenv("LLM_MODEL", "qwen/qwen3.6-27b")
 LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.3"))
 LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "4000"))
 LLM_TIMEOUT = float(os.getenv("LLM_TIMEOUT", "120"))
+# "none" desliga o raciocinio explicito dos modelos que o expoem (qwen, gpt-oss).
+# Sem isto, o bloco <think> do modelo vaza para dentro da prova adaptada.
+LLM_REASONING_EFFORT = os.getenv("LLM_REASONING_EFFORT", "none")
 
 # --- Upload ---
 MAX_UPLOAD_BYTES = int(os.getenv("MAX_UPLOAD_MB", "10")) * 1024 * 1024
