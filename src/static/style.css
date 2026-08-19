@@ -1,0 +1,697 @@
+* {
+    padding: 0px;
+    margin: 0px;
+    box-sizing: border-box;
+}
+
+
+:root {
+    /* backgrounds */
+    --bg-main: #F5F7FA;
+    --bg-header: #ffffff;
+
+    /* border color */
+    --border-accent: #16A149;
+    --border-default: #C5C5C5;
+    
+    /* text color */
+    --text-primary: #000000;
+    --text-inverse: #ffffff;
+
+    /* feedback / states */
+    --color-sucess: #16A149; 
+
+}
+
+
+body {
+    font-family: "Inter", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+}
+
+
+header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid var(--border-default);
+    padding: 15px;
+    background-color: var(--bg-header);
+    position: fixed;
+    width: 100%;
+}
+
+
+.headerInterno {
+    display: flex;
+    align-items: center;
+    width: 90%;
+    gap: 10px;
+}
+
+
+.imgLogoHeader {
+    width: 45px;
+}
+
+
+.nomePlataforma {
+    font-size: 20px;
+}
+
+
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    padding-top: 100px;
+}
+
+
+.mainInterno {
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    gap: 30px;
+}
+
+
+.informacoes {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+
+.imgLogoMain {
+    width: 150px;
+    min-width: 100px;
+}
+
+
+.cartoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+
+.cartoesAgentes {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    border: 1px solid var(--border-default);
+    border-radius: 15px;
+    width: clamp(300px, 390px, 400px);
+    padding: 25px;
+    gap: 10px;
+    flex-direction: column;
+}
+
+
+@media (max-width:967px) {
+    .cartoesAgentes {
+        width: 100%;
+    }   
+}
+
+
+.imagemAgente {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #EDF1F3;
+    width: 50px;
+    height: 50px;
+    border-radius: 15px;
+}
+
+
+.imgAgente {
+    width: 25px;
+}
+
+
+.botaoAtivarAgente {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #2D8386;
+    min-width: 150px;
+    width: 200px;
+    height: 40px;
+    border-radius: 15px;
+    text-decoration: none;
+    color: var(--text-inverse);
+}
+
+
+.areaGeralUpload {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+
+.areaUpload {
+    display: flex;
+    flex-direction: column;
+    width: clamp(400px, 840px, 900px) ;
+    gap: 30px;
+    border: 1px solid var(--border-default);
+    border-radius: 15px;
+    padding: 40px;
+}
+
+
+.formatosAceitos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid var(--border-default);
+    font-size: 14px;
+    gap: 20px;
+    max-height: 150px;
+    padding-bottom: 30px ;
+}
+
+
+.formato {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.imgPapelPDF, .imgPapelDOCX, .imgPapelTXT {
+    width: 18px;
+}
+
+
+.nomeFormatoPDF {
+    color: #C10007;
+}
+
+
+.nomeFormatoDOCX {
+    color: #1166D4;
+}
+
+
+.nomeFormatoTXT {
+    color: #4B4B4B;
+}
+
+
+.dropArea {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px dashed var(--border-default);
+    border-radius: 15px;
+    flex-direction: column;
+    padding: 50px;
+    gap: 10px;
+    text-align: center;
+    cursor: pointer;
+}
+
+
+.dropArea.dragAtivo {
+  border-color: var(--border-accent);
+  background-color: rgba(22, 161, 73, 0.08);
+}
+
+
+.dropArea.dragAtivo::after {
+    display: block;
+    margin-top: 10px;
+    color: var(--color-sucess);
+}
+
+
+.imgUpload {
+    width: 70px;
+}
+
+
+.btnUpload {
+    background-color: #0F172B;
+    color: var(--text-inverse);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+
+.listarArquivos:not([hidden])  {
+    display: flex;
+    flex-direction: column;
+    width: clamp(400px, 840px, 900px) ;
+    padding: 20px 40px 20px 40px ;
+    border: 1px solid var(--border-default);
+    border-radius: 15px;
+    gap: 10px;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+
+.listagemArquivos {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: auto;
+}
+
+
+.quantidadeArquivos {
+    align-items: center;
+    display: flex;
+    gap: 10px;  
+    overflow-wrap: normal;
+    word-break: normal;
+}
+
+
+.arquivosSelecionados {
+    font-size: 24px;
+}
+
+
+.listarArquivosGeral {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+
+.itemArquivo {
+    border: 1px solid var(--border-accent);
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    border-radius: 10px;
+    flex-wrap: wrap;
+    background-color: #E7F5EC;
+    width: 100%;
+}
+
+
+.imgPapelUpload {
+    width: 30px;
+}
+
+
+.informacoesArquivo {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+
+.informacoesFinal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+}
+
+
+.formatoArquivo {
+    color: var(--color-sucess);
+}
+
+
+.tamanhoArquivo {
+    font-size: 12px;
+    color: var(--color-sucess);
+}
+
+
+.imgX {
+    width: 25px;
+}
+
+
+.areaBotaoEnviar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.btnEnviar {
+    border: none;
+    text-align: center;
+    color: var(--text-inverse);
+    padding: 15px 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-block;
+    width: clamp(400px, 840px, 900px) ;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+
+.btnEnviar.disabled {
+    background-color: #CAD5E2;
+    pointer-events: none;
+}
+
+
+.btnEnviar.ativo {
+    background-color: #144EEC;
+    cursor: pointer;
+
+}
+
+
+.btnVoltar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid;
+    font-size: 14px;
+    width: 100px;
+    padding: 12px;
+    text-decoration: none;
+    color: var(--text-primary);
+    border-radius: 15px;
+    gap: 10px;
+    transition: 0.5s ease;
+}
+
+
+.btnVoltar:hover {
+    transition: 0.5s ease;
+    box-shadow: 0 4px 10px #C5C5C5;
+}
+
+
+.imgVoltar {
+    width: 20px;
+}
+
+.bodyChat {
+    overflow-y: hidden;
+}
+
+.mainChat {
+    display: flex;
+    justify-content: start;
+    align-items: start;
+    width: 100%;
+    height: 100vh;
+    padding: 0;
+}
+
+.barraLateral {
+    display: flex;
+    justify-content: center;
+    width: 60px;
+    height: 100%;
+    padding: 10px;
+    background-color: #E8F0FA;
+    transition: 0.2s ease;
+    transition: width 0.2s ease;
+    position: relative;
+}
+
+.barraLateral.aberta {
+    width: 300px;
+}
+
+.areaBtnPainel {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    width: 100%;
+    height: 40px;
+}
+
+.btnBarraLateral {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    border: none;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: 0.2s ease;
+    border-radius: 10px;
+}
+
+.btnBarraLateral:hover {
+    background-color: #c1dcff;
+}
+
+.imgPainel {
+    width: 25px;
+}
+
+.areaBatePapo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    gap: 10px;
+    transition: 0.2s ease;
+}
+
+.msg {
+    color: #1A1A1A;
+    font-size: 30px;
+    text-align: center;
+}
+
+.areaConversa {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    gap: 5px;
+    overflow-y: scroll;
+}
+
+.usuarioMsgConversa {
+    display: flex;
+    width: 50%;
+    min-width: 460px;
+    justify-content: end;
+    height: auto;
+}
+
+.usuarioMsgConversa p {
+    border-radius: 20px;
+    padding: 10px 10px;
+    background-color: #D0E4FF;
+    color: var(--text-primary);
+    font-weight: bold;
+    width: auto;
+    display: flex;
+    max-width: 80%;
+}
+
+.chatMsgConversa {
+    display: flex;
+    width: 50%;
+    min-width: 460px;
+    justify-content: start;
+    height: auto;
+}
+
+.chatMsgConversa p {
+    border-radius: 20px;
+    padding: 10px 10px;
+    color: var(--text-primary);
+    font-weight: bold;
+
+}
+
+.markdown {
+    line-height: 1.6;
+    font-size: 14px;          /* ↓ tamanho do texto */
+    text-align: left;         /* 👈 tira o centralizado */
+}
+
+.markdown strong {
+  font-weight: 600;
+}
+
+.markdown ul {
+  margin: 6px 0;
+  padding-left: 18px;
+}
+
+.markdown li {
+  margin-bottom: 6px;
+}
+
+.markdown h3 {
+  margin-top: 12px;
+}
+
+@media (max-width:570px) {    
+    .usuarioMsgConversa {
+        width: 100%;
+        min-width: 200px;
+    }
+
+    .chatMsgConversa {
+        width: 100%;
+        min-width: 200px;
+    }
+
+    .usuarioMsgConversa p {
+        width: auto;
+        
+    }
+
+    .chatMsgConversa p {
+        width: auto;
+
+    }
+
+    .markdown {
+        width: auto;
+    }
+}
+
+
+.areaGeralInput {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    gap: 5px;
+
+}
+
+.areaInputChat {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    width: 50%;
+    min-width: 460px;
+    background-color: #1B77D1;
+    padding: 5px 5px;
+    border-radius: 25px;
+}
+
+.areaInputChat textarea {
+    padding: 10px 10px ;
+    font-size: 15px;
+    width: 100%;
+    height: auto;
+    background-color: transparent;
+    color: var(--text-inverse);
+    outline: none;
+    border: none;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    resize: none; 
+    scrollbar-width: none;
+}
+
+.areaInputChat textarea::placeholder {
+    color: var(--text-inverse);
+}
+
+.btnAdicionarArquivo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    border: none;
+    padding: 5px;
+    border-radius: 50%;
+    transition: 0.2s ease;
+    cursor: pointer;
+}
+
+.areaInputChat .btnAdicionarArquivo:hover {
+    background-color: #28b6f8;
+}
+
+
+.imgMais {
+    width: 25px;
+}
+
+
+
+.btnEnviarMsg {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #6BB7FF;
+    border: none;
+    padding: 5px;
+    border-radius: 50%;
+    transition: 0.2s ease;
+    cursor: pointer;
+}
+
+.areaInputChat .btnEnviarMsg:hover {
+    background-color: #28b6f8;
+}
+
+
+.imgSeta {
+    width: 25px;
+}
+
+.areaBatePapo.conversa {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px;
+}
+
+.atencaoInfo {
+    font-size: 12px;
+    text-align: center;
+}
+
+@media (max-width:570px) {
+    .areaInputChat {
+        width: 90%;
+        min-width: 200px;
+    }
+}
+
+
+@media (max-width:768px) {
+    .mainChat.mobile {
+        position: relative;
+    }
+
+    .barraLateral {
+        position: fixed;
+    }
+
+    .mainChat .areaBatePapo {
+        padding-left: 60px;
+    }
+}
